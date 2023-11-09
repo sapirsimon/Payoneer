@@ -1,0 +1,26 @@
+trigger:
+- '*'
+
+pr:
+- '*'
+
+pool:
+  name: 'HomeExam'
+
+jobs:
+- job: Build
+  displayName: 'Build Docker Image'
+  steps:
+  - script: docker build -t counter-service .
+    displayName: 'Build Docker Image'
+    workingDirectory: $(Build.SourcesDirectory)
+
+- job: Deploy
+  displayName: 'Deploy Docker Container'
+  dependsOn: Build
+  steps:
+  - script: |
+      docker ps -q --filter "name=counter-service" | grep -q . && docker stop counter-service && docker rm -fv counter-service
+      docker run -d -p 80:80 --name counter-service counter-service
+      docker image prune -f
+    displayName: 'Run Docker Container'
