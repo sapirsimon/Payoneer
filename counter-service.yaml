@@ -20,7 +20,10 @@ jobs:
   dependsOn: Build
   steps:
   - script: |
+      #Check if there is running container with name 'counter-service' and stop it and remove it
       docker ps -q --filter "name=counter-service" | grep -q . && docker stop counter-service && docker rm -fv counter-service
+      #Run new container
       docker run -d -p 80:80 --name counter-service counter-service
+      #Remove images which are not used by any container
       docker image prune -f
     displayName: 'Run Docker Container'
